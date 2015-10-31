@@ -1,0 +1,101 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html" />
+<link rel="stylesheet" type="text/css" href="bower_components/select2/dist/css/select2.min.css" />
+<script type="text/javascript" src="bower_components/jquery/dist/jquery.min.js"></script>
+<script type="text/javascript" src="bower_components/select2/dist/js/select2.min.js"></script>
+
+<style type="text/css">
+	.data-margin {
+		margin-left: 15px;
+	}
+</style>
+
+<dom-module id="super-select">
+	<template>
+		<content> </content>
+	</template>
+	<script>
+		function formatData(data) {
+			var $data = $(
+				'<span>' + data.text + '</span>' + '<span class="data-margin">' + data.description + '</span>'
+			);
+			return $data;
+		};
+
+		superSelect = Polymer({
+			is: 'super-select',
+			extends: 'select',
+			ready: function() {
+				var self = this;
+				$(this).select2({
+					placeholder: self.placeholder,
+					templateResult: formatData,
+				})
+				this._addEvents()
+			},
+			_addEvents: function () {
+				var self = this
+
+				$(this).on('select2:open', function (e) {
+					self.fire('open', e)
+				})
+
+				$(this).on('select2:close', function (e) {
+					self.fire('close', e)
+				})
+
+				$(this).on('select2:close', function (e) {
+					self.fire('close', e)
+				})
+			},
+
+			properties: {
+				placeholder: {
+					type: "String"
+				},
+				_value: {
+					type: Array
+				}
+			},
+			get value () {
+				return this._value
+			},
+			set value (val) {
+				this.reset()
+				$(this).empty()
+				$(this).select2({data: val})
+				$(this).trigger('change')
+				this._value = val
+			},
+			get selected () {
+				var data = $(this).select2('data')
+				//An unecessary refernce to select2 is in `element`.
+				delete data.element
+				return data
+			},
+
+			/**
+			 * Makes Super Select select the option of the given id.
+			 * If an array is given, it will select all the options.
+			 * @param  {any} selectedVal [id of the option we want to get selected. If an Array is given,
+			 * Super Select will multiselect all the given options]
+			 */
+			set selected (selectedVal) {
+
+
+				/**
+				 * Doesnt Work for now. `indexOf` is always returning 1.
+				 * Need to use Ramda!
+				 *
+				if (typeof selectedVal == 'object')
+					if (this.value.indexOf(selectedVal) != -1)
+						$(this).select2('val', this.value[id])
+				else
+				**/
+					$(this).select2('val', selectedVal)
+			},
+			reset: function () {
+				$(this).select2('val', '')
+			}
+		});
+	</script>
+</dom-module>

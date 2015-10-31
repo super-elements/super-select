@@ -1,0 +1,21 @@
+{
+  "name": "super-select",
+  "version": "0.0.0",
+  "homepage": "https://github.com/super-elements/super-select",
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "~2.1.4",
+    "select2": "#master",
+    "polymer": "Polymer/polymer#~1.1.1"
+  }
+}
