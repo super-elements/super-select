@@ -1,7 +1,7 @@
 <link rel="import" href="../polymer/polymer.html" />
 <link rel="stylesheet" type="text/css" href="../select2/dist/css/select2.min.css" />
 <script type="text/javascript" src="../jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="../select2/dist/js/select2.min.js"></script>
+<script type="text/javascript" src="../select2/dist/js/select2.js"></script>
 
 <style type="text/css">
 	.data-margin {
@@ -21,81 +21,203 @@
 			return $data;
 		};
 
+		//Native Implementation
+
 		superSelect = Polymer({
 			is: 'super-select',
 			extends: 'select',
-			ready: function() {
-				var self = this;
-				$(this).select2({
-					placeholder: self.placeholder,
-					templateResult: formatData,
-				})
-				this._addEvents()
+			ready: function () {
+				this._createOpenCloseEvents()
+
 			},
-			_addEvents: function () {
-				var self = this
-
-				$(this).on('select2:open', function (e) {
-					self.fire('open', e)
-				})
-
-				$(this).on('select2:close', function (e) {
-					self.fire('close', e)
-				})
-
-				$(this).on('select2:close', function (e) {
-					self.fire('close', e)
-				})
-			},
-
 			properties: {
-				placeholder: {
-					type: "String"
+				_val: {
+					type: Array,
+					value: []
 				},
-				_value: {
-					type: Array
+				open : {
+					type: Boolean,
+					value: false
 				}
 			},
-			get value () {
-				return this._value
+
+			//HACK so that we get `some()`, `every()` all into
+			//NodeList
+			//
+			//Ref: http://toddmotto.com/ditch-the-array-foreach-call-nodelist-hack/
+
+			selectedOptionsAsArray : function () {
+				var selectedOptions = this.selectedOptions
+				var selectedOptionsArray = []
+				for (var i = 0; i < selectedOptions.length; i ++)
+					selectedOptionsArray.push(selectedOptions[i])
+				return selectedOptionsArray
 			},
-			set value (val) {
-				this.reset()
-				$(this).empty()
-				$(this).select2({data: val})
-				$(this).trigger('change')
-				this._value = val
-			},
+
 			get selected () {
-				var data = $(this).select2('data')
-				//An unecessary refernce to select2 is in `element`.
-				delete data.element
-				return data
+				return this._val.filter(
+					v => this.selectedOptionsAsArray().some(
+						opt => opt.id == v.id
+					)
+				)
+			},
+
+			set selected (sel) {
+
 			},
 
 			/**
-			 * Makes Super Select select the option of the given id.
-			 * If an array is given, it will select all the options.
-			 * @param  {any} selectedVal [id of the option we want to get selected. If an Array is given,
-			 * Super Select will multiselect all the given options]
+			 * An extremely rough Implementation to facilitate `open` & `close`
+			 * Events on native `<select>`s.
+			 *
+			 * Ported partly from
+			 * http://stackoverflow.com/a/6688518/950039
+			 * & http://jsfiddle.net/FpfnM/50/
+			 *
+			 * @return {[type]} [description]
 			 */
-			set selected (selectedVal) {
+			_createOpenCloseEvents: function () {
+				var self = this
+				var mouseupListener = function () {
+					self.fire('close')
+					self.removeEventListener('mouseup', mouseupListener, false)
+					setTimeout(function () {
+						self.open = false
+					}, 1)
+					return false
+				}
+				this.addEventListener('click', function () {
+					if (self.open == false){
+						self.open = true
+						self.fire('open')
+						self.addEventListener('mouseup', mouseupListener, false)
+					}
+					else {
+						self.open = false
+						self.fire('close')
+					}
 
-
-				/**
-				 * Doesnt Work for now. `indexOf` is always returning 1.
-				 * Need to use Ramda!
-				 *
-				if (typeof selectedVal == 'object')
-					if (this.value.indexOf(selectedVal) != -1)
-						$(this).select2('val', this.value[id])
-				else
-				**/
-					$(this).select2('val', selectedVal)
+					return false
+				})
 			},
-			reset: function () {
-				$(this).select2('val', '')
+			get value() {
+				return this._val
+			},
+			set value (val) {
+				var self = this
+
+				//Clear out all existing `<option>s`
+				self.innerHTML = ''
+				val.forEach(function (val){
+					var opt = document.createElement('option')
+					opt.innerHTML = val.text
+					opt.id = val.id
+					self.appendChild(opt)
+				})
+				this._val = val
 			}
-		});
+		})
+
+
+		//Commenting the select2 implementation
+		// superSelect = Polymer({
+		// 	is: 'super-select',
+		// 	extends: 'select',
+		// 	ready: function() {
+		// 		var self = this;
+		// 		$(this).select2({
+		// 			placeholder: self.placeholder,
+		// 			templateResult: formatData,
+		// 			ajax: {
+		// 				transport: function(params, success, failure) {
+		// 					success({
+		// 						results: self._value
+		// 					})
+		// 				},
+		// 				data: function(params) {
+		// 					console.log('params', params)
+		// 					return {
+		// 						q: params.term, // search term
+		// 						page: params.page
+		// 					};
+		// 				},
+		// 			}
+		// 		})
+		// 		this.value = []
+		// 		this._addEvents()
+		// 	},
+		// 	_addEvents: function() {
+		// 		var self = this
+		//
+		// 		$(this).on('select2:opening', function(e) {
+		// 			self.fire('opening', e)
+		// 		})
+		//
+		// 		$(this).on('select2:open', function(e) {
+		// 			self.fire('open', e)
+		// 		})
+		//
+		// 		$(this).on('select2:close', function(e) {
+		// 			self.fire('close', e)
+		// 		})
+		//
+		// 		// $(this).on('select2:select', function (e){
+		// 		// 	self.fire('select', e)
+		// 		// })
+		// 	},
+		//
+		// 	properties: {
+		// 		placeholder: {
+		// 			type: "String"
+		// 		},
+		// 		_value: {
+		// 			type: Array,
+		// 			value: []
+		// 		}
+		// 	},
+		// 	open: function () {
+		// 		$(this).select2('open')
+		// 	},
+		// 	get value() {
+		// 		return this._value
+		// 	},
+		// 	set value(val) {
+		// 		this._value = val
+		//
+		// 		//To call the ajax() method to update values!
+		// 		this.open()
+		// 		return this._value
+		// 	},
+		// 	get selected() {
+		// 		var data = $(this).select2('data')
+		// 			//An unecessary refernce to select2 is in `element`.
+		// 		delete data.element
+		// 		return data
+		// 	},
+		//
+		// 	/**
+		// 	 * Makes Super Select select the option of the given id.
+		// 	 * If an array is given, it will select all the options.
+		// 	 * @param  {any} selectedVal [id of the option we want to get selected. If an Array is given,
+		// 	 * Super Select will multiselect all the given options]
+		// 	 */
+		// 	set selected(selectedVal) {
+		//
+		//
+		// 		/**
+		// 		 * Doesnt Work for now. `indexOf` is always returning 1.
+		// 		 * Need to use Ramda!
+		// 		 *
+		// 		if (typeof selectedVal == 'object')
+		// 			if (this.value.indexOf(selectedVal) != -1)
+		// 				$(this).select2('val', this.value[id])
+		// 		else
+		// 		**/
+		// 		$(this).select2('val', selectedVal)
+		// 	},
+		// 	reset: function() {
+		// 		$(this).select2('val', '')
+		// 	}
+		// });
 	</script>
 </dom-module>
