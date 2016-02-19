@@ -1,60 +1,45 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<title>Super Select! Demo</title>
-		<script>
-			Error.stackTraceLimit = Infinity;
-		</script>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hello React!</title>
+    <!-- <script src="../react/react.js"></script>
+    <script src="../react/react-dom.js"></script>
+	 <script src="https://fb.me/react-0.14.7.js"></script>
+<script src="https://fb.me/react-dom-0.14.7.js"></script> -->
+	 <!-- <script src="../classnames/index.js"></script>
+	<script src="../react-input-autosize/dist/react-input-autosize.js"></script>
+	<script src="../ReactiveElements/dist/reactive-elements.js"></script>
+    <script src="../document-register-element/build/document-register-element.js"></script>
+	<script src="../react-select/dist/react-select.js"></script>
+	<link href="../react-select/dist/react-select.css" rel="stylesheet" /> -->
+	<!-- <script src="index.js"></script> -->
 
-		<script src="../webcomponentsjs/webcomponents.js"></script>
+	<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script> -->
+	<script src="node_modules/classnames/index.js"></script>
+	<!-- <script src="node_modules/react-input-autosize/dist/react-input-autosize.js"></script> -->
+	<link href="node_modules/react-select/dist/react-select.css" rel="stylesheet" />
+	<script>
+	var options = [
+	    { value: 'one', label: 'One' },
+	    { value: 'two', label: 'Two' },
+        { value: 'three', label: 'Three'},
+        { value: 'four', label: 'Four' },
+        { value: 'five', label: 'Five' }
+	];
 
-		<link rel="import" href="super-select.html" />
-	</head>
+function change(){
+    console.log('hjjh');
+}
+
+
+	</script>
+  </head>
 
 	<body>
-		<select multiple is="super-select" id="super-select-demo" placeholder="Select Template"></select>
-		<button id="change-value-btn"> Change Value </button>
-		<h2 id="open-close-label"> Close </h2>
 
-		<script type="text/javascript">
-			//Shortcuts
-			var select = document.getElementById('super-select-demo')
+			<script src="ind.js"></script>
 
-			select.value = [{
-				id: 'NDL',
-				text: 'New Delhi'
-			}, {
-				id: 'NYC',
-				text: 'New York'
-			}]
-
-			document.querySelector('#change-value-btn').addEventListener('click', function () {
-				select.value = [{
-					id: 'DEL',
-					text: 'Delhi'
-				},{
-					id: 'MUM',
-					text: 'Mumbai'
-				},{
-					id: 'KOL',
-					text: 'Kolkata'
-				},{
-					id: 'CHN',
-					text: 'Chennai'
-				}]
-			})
-
-			document.querySelector('#super-select-demo').addEventListener('open', function () {
-				console.log(this, 'opened!')
-				document.querySelector('#open-close-label').innerHTML = 'Open'
-			})
-
-			document.querySelector('#super-select-demo').addEventListener('close', function () {
-				console.log(this, 'closed!')
-				document.querySelector('#open-close-label').innerHTML = 'Close'
-			})
-
-		</script>
+			<super-select id="MySelect" value="one" options={options}></super-select>
 	</body>
 </html>
